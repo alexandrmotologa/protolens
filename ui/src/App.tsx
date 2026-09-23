@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Layers, Send, Inbox } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { ServiceSidebar } from './components/ServiceSidebar';
 import { RequestTabs } from './components/RequestTabs';
@@ -160,6 +161,8 @@ export const App: React.FC = () => {
   const [jwtModalOpen, setJwtModalOpen] = useState(false);
   const [jwtInspectToken, setJwtInspectToken] = useState('');
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<'request' | 'response'>('request');
 
   // Active WebSocket connections for streams keyed by tabId
   const activeSockets = useRef<Record<string, WebSocket>>({});
@@ -395,7 +398,8 @@ export const App: React.FC = () => {
     handleUpdateTab({ loading: true });
 
     // Interpolate environment and dynamic variables
-    const finalTarget = interpolateText(activeTab.target || target, currentEnv);
+    const tabTarget = target || activeTab.target;
+    const finalTarget = interpolateText(tabTarget, currentEnv);
     const finalPayload = interpolateText(activeTab.payloadJson, currentEnv);
 
     const headersMap: Record<string, string> = {};
@@ -556,7 +560,9 @@ export const App: React.FC = () => {
       if (res.ok && data.running) {
         setMockRunning(true);
         setMockPort(data.port);
-        setTarget(`localhost:${data.port}`);
+        const mockTarget = `localhost:${data.port}`;
+        setTarget(mockTarget);
+        handleUpdateTab({ target: mockTarget });
       } else {
         alert('Failed to start mock server');
       }
@@ -710,55 +716,103 @@ export const App: React.FC = () => {
           onSelectMethod={handleSelectMethod}
           onLoadSample={handleLoadSample}
           onOpenProtoModal={() => setProtoModalOpen(true)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
 
         {/* Workbench Center & Right */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-[#0a0f1d]">
-          {/* Tabs Bar */}
-          <RequestTabs
-            tabs={tabs}
-            activeTabId={activeTabId}
-            onSelectTab={setActiveTabId}
-            onCloseTab={handleCloseTab}
-            onNewTab={handleNewTab}
-          />
+        <main className="flex-1 flex flex-col overflow-hidden bg-[#070b16]">
+          {/* Tabs Bar & Responsive Switcher */}
+          <div className="flex items-center justify-between bg-[#070b16] border-b border-white/10 pr-3">
+            <div className="flex-1 overflow-hidden">
+              <RequestTabs
+                tabs={tabs}
+                activeTabId={activeTabId}
+                onSelectTab={setActiveTabId}
+                onCloseTab={handleCloseTab}
+                onNewTab={handleNewTab}
+              />
+            </div>
+
+            {/* Mobile / Tablet Segmented Switcher */}
+            {activeTab && (
+              <div className="lg:hidden flex items-center bg-black/60 border border-white/10 rounded-xl p-1 shrink-0 ml-3 gap-1 shadow-inner">
+                <button
+                  onClick={() => setMobilePanel('request')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    mobilePanel === 'request'
+                      ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Request</span>
+                </button>
+                <button
+                  onClick={() => setMobilePanel('response')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    mobilePanel === 'response'
+                      ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Inbox className="w-3.5 h-3.5" />
+                  <span>Response</span>
+                  {activeTab.response && (
+                    <span className={`w-2 h-2 rounded-full ${activeTab.response.success ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Workbench Split Panels */}
           {activeTab ? (
             <div className="flex-1 flex overflow-hidden">
               {/* Left Panel: Request Configuration & Monaco Editor */}
-              <RequestPanel
-                tab={activeTab}
-                onUpdateTab={handleUpdateTab}
-                onExecute={handleExecute}
-                onInspectJwt={handleInspectJwt}
-              />
+              <div className={`flex-1 h-full overflow-hidden ${mobilePanel === 'response' ? 'hidden lg:flex' : 'flex'}`}>
+                <RequestPanel
+                  tab={activeTab}
+                  onUpdateTab={handleUpdateTab}
+                  onExecute={handleExecute}
+                  onInspectJwt={handleInspectJwt}
+                />
+              </div>
 
               {/* Right Panel: Response or Stream Timeline */}
-              {activeTab.method.kind === 'unary' ? (
-                <ResponsePanel
-                  response={activeTab.response}
-                  loading={activeTab.loading}
-                  onSaveAsMockRule={handleSaveAsMockRule}
-                />
-              ) : (
-                <StreamTimeline
-                  method={activeTab.method}
-                  events={activeTab.streamEvents || []}
-                  isStreamActive={activeTab.isStreamActive}
-                  onSendMessage={handlePushStreamChunk}
-                  onHalfClose={handleHalfCloseStream}
-                  onCancelStream={handleCancelStream}
-                />
-              )}
+              <div className={`flex-1 h-full overflow-hidden ${mobilePanel === 'request' ? 'hidden lg:flex' : 'flex'}`}>
+                {activeTab.method.kind === 'unary' ? (
+                  <ResponsePanel
+                    response={activeTab.response}
+                    loading={activeTab.loading}
+                    onSaveAsMockRule={handleSaveAsMockRule}
+                  />
+                ) : (
+                  <StreamTimeline
+                    method={activeTab.method}
+                    events={activeTab.streamEvents || []}
+                    isStreamActive={activeTab.isStreamActive}
+                    onSendMessage={handlePushStreamChunk}
+                    onHalfClose={handleHalfCloseStream}
+                    onCancelStream={handleCancelStream}
+                  />
+                )}
+              </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
-              Select an RPC method from the left sidebar to begin testing.
+            <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs p-8 text-center select-none">
+              <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 mb-4 shadow-inner">
+                <Layers className="w-7 h-7 text-slate-400" />
+              </div>
+              <p className="font-semibold text-slate-200 text-sm mb-1.5">No Active Workbench Tab</p>
+              <p className="text-slate-400 text-xs max-w-sm leading-relaxed">
+                Select an RPC method from the left sidebar or import a .proto definition to start building requests.
+              </p>
             </div>
           )}
         </main>
       </div>
+
 
       {/* Modals & Drawers */}
       <MockDialog

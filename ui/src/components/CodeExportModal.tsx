@@ -98,21 +98,43 @@ executeRpc();`);
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 func main() {
-	conn, err := grpc.NewClient("${tab.target || 'localhost:50051'}", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Inject metadata headers
+	md := metadata.Pairs(
+		${Object.entries(headersMap).map(([k, v]) => `"${k}", "${v}"`).join(',\n\t\t')}
+	)
+	ctx = metadata.NewOutgoingContext(ctx, md)
+
+	var creds credentials.TransportCredentials
+	if ${tab.tls.useTls} {
+		creds = credentials.NewTLS(&tls.Config{
+			InsecureSkipVerify: ${tab.tls.insecureSkipVerify},
+		})
+	} else {
+		creds = insecure.NewCredentials()
+	}
+
+	conn, err := grpc.NewClient("${tab.target || "localhost:50051"}", grpc.WithTransportCredentials(creds))
 	if err != nil {
-		log.Fatalf("failed to connect: %v", err)
+		log.Fatalf("failed to dial: %v", err)
 	}
 	defer conn.Close()
 
-	fmt.Println("Connected to target for method ${tab.method.fullName}")
+	fmt.Println("Connected to ${tab.target} via gRPC client!")
 }`);
     }
   }, [isOpen, format, tab]);
@@ -126,89 +148,63 @@ func main() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl rounded-2xl glass-dropdown border border-white/10 shadow-2xl p-6 text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl rounded-2xl glass-modal border border-white/10 shadow-2xl p-6 text-slate-100 flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-150 bg-[#0b101f]/95">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
-              <Code2 className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
+              <Code2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Export Code & CLI Commands</h3>
-              <p className="text-[11px] text-slate-400 font-mono">{tab.method.fullName}</p>
+              <h3 className="font-semibold text-base text-white tracking-tight">Export RPC Call Snippet</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Generate ready-to-run client invocations</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-1 my-4 border-b border-white/10 text-xs">
-          <button
-            onClick={() => setFormat('grpcurl')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors ${
-              format === 'grpcurl' ? 'border-indigo-400 text-indigo-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            grpcurl
-          </button>
-          <button
-            onClick={() => setFormat('curl')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors ${
-              format === 'curl' ? 'border-indigo-400 text-indigo-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            curl (Connect)
-          </button>
-          <button
-            onClick={() => setFormat('ts')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors ${
-              format === 'ts' ? 'border-indigo-400 text-indigo-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            TypeScript
-          </button>
-          <button
-            onClick={() => setFormat('go')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors ${
-              format === 'go' ? 'border-indigo-400 text-indigo-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Go Client
-          </button>
+        {/* Format Selector */}
+        <div className="flex items-center gap-2 my-4 border-b border-white/10 text-xs">
+          {[
+            { id: 'grpcurl', label: 'grpcurl (CLI)' },
+            { id: 'curl', label: 'curl (Connect HTTP)' },
+            { id: 'ts', label: 'TypeScript' },
+            { id: 'go', label: 'Go (grpc-go)' },
+          ].map((fmt) => (
+            <button
+              key={fmt.id}
+              onClick={() => setFormat(fmt.id as any)}
+              className={`py-2.5 px-3.5 border-b-2 font-medium transition-all ${
+                format === fmt.id ? 'border-indigo-400 text-indigo-300 font-semibold' : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {fmt.label}
+            </button>
+          ))}
         </div>
 
-        {/* Code Snippet */}
-        <div className="relative rounded-xl bg-black/60 border border-white/10 p-4 font-mono text-xs overflow-x-auto max-h-80">
+        {/* Code Block Container */}
+        <div className="relative flex-1 bg-black/60 rounded-2xl border border-white/10 p-4 font-mono text-xs overflow-auto max-h-[50vh]">
           <button
             onClick={handleCopy}
-            className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/10 hover:bg-white/15 text-slate-200 text-xs transition-colors"
+            className="absolute top-3 right-3 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-sans flex items-center space-x-1.5 transition-all shadow-sm"
           >
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copied</span>
+                <span className="text-emerald-400 font-medium">Copied!</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Copy</span>
+                <span>Copy Code</span>
               </>
             )}
           </button>
-          <pre className="text-slate-200 pr-16 whitespace-pre-wrap">{code}</pre>
-        </div>
-
-        {/* Footer */}
-        <div className="pt-4 mt-4 border-t border-white/10 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-colors"
-          >
-            Done
-          </button>
+          <pre className="text-slate-200 whitespace-pre-wrap leading-relaxed pt-2">{code}</pre>
         </div>
       </div>
     </div>

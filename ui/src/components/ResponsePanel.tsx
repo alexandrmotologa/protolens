@@ -7,7 +7,9 @@ import {
   Copy, 
   Check, 
   Inbox, 
-  Layers 
+  Layers,
+  Database,
+  Layers2
 } from 'lucide-react';
 import { InvocationResponse } from '../types';
 
@@ -44,13 +46,13 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
 
   if (!response && !loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center h-full bg-[#0a0f1d] text-center p-6 select-none">
-        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500 mb-3">
-          <Inbox className="w-6 h-6" />
+      <div className="flex-1 flex flex-col items-center justify-center h-full bg-[#080d1a] text-center p-8 select-none">
+        <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-slate-500 mb-4 shadow-xl">
+          <Inbox className="w-8 h-8 text-slate-400" />
         </div>
-        <h3 className="text-xs font-semibold text-slate-300 mb-1">Response Awaiting Invocation</h3>
-        <p className="text-[11px] text-slate-500 max-w-xs">
-          Hit &ldquo;Execute RPC&rdquo; to send the request payload and inspect the returned gRPC message.
+        <h3 className="text-sm font-semibold text-slate-200 mb-1.5">Response Awaiting Invocation</h3>
+        <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+          Hit &ldquo;Execute RPC&rdquo; or press Enter in the host bar to send the request payload and inspect the returned gRPC response message.
         </p>
       </div>
     );
@@ -58,10 +60,10 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
 
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center h-full bg-[#0a0f1d] text-center p-6 select-none">
-        <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-500 animate-spin mb-4" />
-        <p className="text-xs font-medium text-slate-300 mb-1">Awaiting Server Response...</p>
-        <p className="text-[11px] text-slate-500">Executing round-trip gRPC call</p>
+      <div className="flex-1 flex flex-col items-center justify-center h-full bg-[#080d1a] text-center p-8 select-none">
+        <div className="w-12 h-12 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin mb-4 shadow-lg shadow-cyan-500/10" />
+        <p className="text-sm font-semibold text-slate-200 mb-1">Awaiting Server Response...</p>
+        <p className="text-xs text-slate-400">Executing round-trip gRPC HTTP/2 stream invocation</p>
       </div>
     );
   }
@@ -69,22 +71,22 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
   const isSuccess = response?.success;
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0a0f1d] overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-[#080d1a] overflow-hidden">
       {/* Response Metrics Header */}
-      <div className="p-3 border-b border-white/10 flex items-center justify-between bg-[#0c1222]">
+      <div className="px-4 lg:px-6 py-3 bg-[#0a1022] border-b border-white/10 flex items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-3">
           {/* Status Badge */}
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold font-mono ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono ${
               isSuccess
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-500/15'
+                : 'bg-rose-500/15 text-rose-300 border border-rose-500/40 shadow-sm shadow-rose-500/15'
             }`}
           >
             {isSuccess ? (
-              <CheckCircle2 className="w-3.5 h-3.5" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             ) : (
-              <AlertCircle className="w-3.5 h-3.5" />
+              <AlertCircle className="w-4 h-4 text-rose-400" />
             )}
             <span>
               {response?.statusCode} {response?.statusMessage}
@@ -92,36 +94,37 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
           </div>
 
           {/* Latency Badge */}
-          <div className="flex items-center gap-1 text-xs font-mono text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
-            <Clock className="w-3 h-3 text-slate-400" />
+          <div className="flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-white/[0.04] px-3 py-1.5 rounded-xl border border-white/10 shadow-sm">
+            <Clock className="w-3.5 h-3.5 text-amber-400" />
             <span>{response?.durationMs.toFixed(1)} ms</span>
           </div>
 
           {/* Size Badge */}
           {response?.responseJson && (
-            <div className="flex items-center gap-1 text-xs font-mono text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-white/[0.04] px-3 py-1.5 rounded-xl border border-white/10 shadow-sm">
+              <Database className="w-3.5 h-3.5 text-cyan-400" />
               <span>{new Blob([response.responseJson]).size} B</span>
             </div>
           )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2.5">
           {response?.responseJson && onSaveAsMockRule && (
             <button
               onClick={handleSaveMock}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs transition-colors"
+              className="h-8 flex items-center gap-2 px-3.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm"
               title="Snapshot this response into mock server rules"
             >
               {savedMock ? (
                 <>
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Rule Saved</span>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Rule Saved!</span>
                 </>
               ) : (
                 <>
                   <Layers className="w-3.5 h-3.5" />
-                  <span>Save as Mock Rule</span>
+                  <span>Save as Mock</span>
                 </>
               )}
             </button>
@@ -130,7 +133,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
           {response?.responseJson && (
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs transition-colors"
+              className="h-8 flex items-center gap-2 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white border border-white/10 text-xs font-semibold transition-all shadow-sm"
             >
               {copied ? (
                 <>
@@ -140,7 +143,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Copy JSON</span>
+                  <span>Copy</span>
                 </>
               )}
             </button>
@@ -148,124 +151,141 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-1 px-3 border-b border-white/10 bg-[#090d18] text-xs">
+      {/* Sub-Tabs: Response Body vs Headers vs Trailers */}
+      <div className="flex items-center gap-2 px-4 lg:px-6 bg-[#070b16] border-b border-white/10 text-xs shrink-0">
         <button
           onClick={() => setActiveTab('body')}
-          className={`py-2 px-3 border-b-2 font-medium transition-colors ${
+          className={`py-3 px-4 font-semibold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'body'
-              ? 'border-cyan-400 text-cyan-300'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-cyan-400 text-cyan-300 bg-white/[0.02]'
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.01]'
           }`}
         >
-          Response Body
+          <span>Response Body</span>
         </button>
-
-        {response?.headers && Object.keys(response.headers).length > 0 && (
-          <button
-            onClick={() => setActiveTab('headers')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors flex items-center gap-1 ${
-              activeTab === 'headers'
-                ? 'border-cyan-400 text-cyan-300'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span>Headers</span>
-            <span className="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] flex items-center justify-center font-mono">
+        <button
+          onClick={() => setActiveTab('headers')}
+          className={`py-3 px-4 font-semibold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'headers'
+              ? 'border-cyan-400 text-cyan-300 bg-white/[0.02]'
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.01]'
+          }`}
+        >
+          <span>Initial Metadata</span>
+          {response?.headers && Object.keys(response.headers).length > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono border border-cyan-500/30 font-semibold">
               {Object.keys(response.headers).length}
             </span>
-          </button>
-        )}
-
-        {response?.trailers && Object.keys(response.trailers).length > 0 && (
-          <button
-            onClick={() => setActiveTab('trailers')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors flex items-center gap-1 ${
-              activeTab === 'trailers'
-                ? 'border-cyan-400 text-cyan-300'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span>Trailers</span>
-            <span className="w-4 h-4 rounded-full bg-purple-500/20 text-purple-400 text-[10px] flex items-center justify-center font-mono">
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('trailers')}
+          className={`py-3 px-4 font-semibold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'trailers'
+              ? 'border-cyan-400 text-cyan-300 bg-white/[0.02]'
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.01]'
+          }`}
+        >
+          <span>Trailing Metadata</span>
+          {response?.trailers && Object.keys(response.trailers).length > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-mono border border-purple-500/30 font-semibold">
               {Object.keys(response.trailers).length}
             </span>
-          </button>
-        )}
+          )}
+        </button>
       </div>
 
-      {/* Content */}
+      {/* Tab Panels */}
       <div className="flex-1 overflow-hidden relative">
         {activeTab === 'body' && (
-          <>
-            {response?.error ? (
-              <div className="p-4 bg-rose-500/10 border-b border-rose-500/20 text-xs text-rose-300 font-mono">
-                <strong>Error:</strong> {response.error}
-              </div>
-            ) : null}
-
-            <Editor
-              height="100%"
-              language="json"
-              theme="vs-dark"
-              value={response?.responseJson || '{}'}
-              options={{
-                readOnly: true,
-                minimap: { enabled: false },
-                fontSize: 12,
-                fontFamily: "'JetBrains Mono', monospace",
-                scrollBeyondLastLine: false,
-                wordWrap: 'on',
-                automaticLayout: true,
-                padding: { top: 8, bottom: 8 },
-              }}
-            />
-          </>
+          <Editor
+            height="100%"
+            language="json"
+            theme="vs-dark"
+            value={response?.responseJson || (response?.error ? JSON.stringify({ error: response.error }, null, 2) : '{}')}
+            options={{
+              readOnly: true,
+              minimap: { enabled: false },
+              fontSize: 12,
+              fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+              scrollBeyondLastLine: false,
+              wordWrap: 'on',
+              automaticLayout: true,
+              padding: { top: 14, bottom: 14 },
+              lineHeight: 22,
+            }}
+          />
         )}
 
-        {activeTab === 'headers' && response?.headers && (
-          <div className="p-4 overflow-y-auto h-full">
-            <div className="border border-white/10 rounded-lg overflow-hidden">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-white/5 border-b border-white/10 text-slate-400 font-mono text-[11px]">
-                  <tr>
-                    <th className="p-2.5">Header Key</th>
-                    <th className="p-2.5">Value(s)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 font-mono text-[11px]">
-                  {Object.entries(response.headers).map(([k, vals]) => (
-                    <tr key={k} className="hover:bg-white/[0.02]">
-                      <td className="p-2.5 text-cyan-300 font-semibold">{k}</td>
-                      <td className="p-2.5 text-slate-200">{vals.join(', ')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {activeTab === 'headers' && (
+          <div className="p-6 overflow-y-auto h-full space-y-4">
+            <div>
+              <h4 className="text-xs font-semibold text-slate-200 mb-1">Server Initial Metadata (Headers)</h4>
+              <p className="text-[11px] text-slate-400">
+                Metadata key-values sent before response payload frames.
+              </p>
             </div>
+
+            {response?.headers && Object.keys(response.headers).length > 0 ? (
+              <div className="rounded-2xl border border-white/10 overflow-hidden bg-black/20 shadow-sm">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-white/[0.04] text-slate-400 text-[11px]">
+                      <th className="py-3 px-4 font-semibold">Header Key</th>
+                      <th className="py-3 px-4 font-semibold">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-slate-200">
+                    {Object.entries(response.headers).map(([key, val]) => (
+                      <tr key={key} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="py-3 px-4 font-semibold text-cyan-300">{key}</td>
+                        <td className="py-3 px-4 break-all text-slate-300">{val}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-xs text-slate-500 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                No initial metadata headers returned by the server.
+              </div>
+            )}
           </div>
         )}
 
-        {activeTab === 'trailers' && response?.trailers && (
-          <div className="p-4 overflow-y-auto h-full">
-            <div className="border border-white/10 rounded-lg overflow-hidden">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-white/5 border-b border-white/10 text-slate-400 font-mono text-[11px]">
-                  <tr>
-                    <th className="p-2.5">Trailer Key</th>
-                    <th className="p-2.5">Value(s)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 font-mono text-[11px]">
-                  {Object.entries(response.trailers).map(([k, vals]) => (
-                    <tr key={k} className="hover:bg-white/[0.02]">
-                      <td className="p-2.5 text-purple-300 font-semibold">{k}</td>
-                      <td className="p-2.5 text-slate-200">{vals.join(', ')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {activeTab === 'trailers' && (
+          <div className="p-6 overflow-y-auto h-full space-y-4">
+            <div>
+              <h4 className="text-xs font-semibold text-slate-200 mb-1">Trailing Metadata (Trailers)</h4>
+              <p className="text-[11px] text-slate-400">
+                Metadata sent alongside gRPC status code at call termination.
+              </p>
             </div>
+
+            {response?.trailers && Object.keys(response.trailers).length > 0 ? (
+              <div className="rounded-2xl border border-white/10 overflow-hidden bg-black/20 shadow-sm">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-white/[0.04] text-slate-400 text-[11px]">
+                      <th className="py-3 px-4 font-semibold">Trailer Key</th>
+                      <th className="py-3 px-4 font-semibold">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-slate-200">
+                    {Object.entries(response.trailers).map(([key, val]) => (
+                      <tr key={key} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="py-3 px-4 font-semibold text-purple-300">{key}</td>
+                        <td className="py-3 px-4 break-all text-slate-300">{val}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-xs text-slate-500 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                No trailing metadata returned by the server.
+              </div>
+            )}
           </div>
         )}
       </div>

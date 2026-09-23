@@ -34,103 +34,101 @@ export const ProtoImportModal: React.FC<ProtoImportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-xl rounded-2xl glass-dropdown border border-white/10 shadow-2xl p-6 text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-xl rounded-2xl glass-modal border border-white/10 shadow-2xl p-6 text-slate-100 flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-150 bg-[#0b101f]/95">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/30">
-              <FileCode className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-sky-500/15 text-sky-400 border border-sky-500/30">
+              <FileCode className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Import Protobuf Definitions</h3>
-              <p className="text-[11px] text-slate-400">Load local schemas without server reflection</p>
+              <h3 className="font-semibold text-base text-white tracking-tight">Import Protobuf Definitions</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Parse local .proto schemas with AST resolution</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Mode Selector */}
-        <div className="flex items-center gap-1 my-4 border-b border-white/10 text-xs">
+        <div className="flex items-center gap-2 my-4 border-b border-white/10 text-xs">
           <button
             onClick={() => setTab('paste')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors flex items-center gap-1.5 ${
-              tab === 'paste' ? 'border-sky-400 text-sky-300' : 'border-transparent text-slate-400 hover:text-slate-200'
+            className={`py-2.5 px-3.5 border-b-2 font-medium transition-all flex items-center gap-2 ${
+              tab === 'paste' ? 'border-sky-400 text-sky-300 font-semibold' : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <FileText className="w-3.5 h-3.5" />
+            <FileText className="w-4 h-4" />
             <span>Paste .proto Text</span>
           </button>
           <button
             onClick={() => setTab('path')}
-            className={`py-2 px-3 border-b-2 font-medium transition-colors flex items-center gap-1.5 ${
-              tab === 'path' ? 'border-sky-400 text-sky-300' : 'border-transparent text-slate-400 hover:text-slate-200'
+            className={`py-2.5 px-3.5 border-b-2 font-medium transition-all flex items-center gap-2 ${
+              tab === 'path' ? 'border-sky-400 text-sky-300 font-semibold' : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Upload className="w-3.5 h-3.5" />
+            <Upload className="w-4 h-4" />
             <span>Local File Path</span>
           </button>
         </div>
 
         {/* Body */}
         {tab === 'paste' ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">Virtual Filename</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1.5">Virtual Filename</label>
               <input
                 type="text"
                 value={filename}
                 onChange={(e) => setFilename(e.target.value)}
-                className="w-full px-3 py-1.5 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/50"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/60"
               />
             </div>
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">Protobuf Source Definition</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1.5">Protobuf Source Definition</label>
               <textarea
-                rows={10}
+                rows={9}
                 value={rawProto}
                 onChange={(e) => setRawProto(e.target.value)}
                 placeholder={'syntax = "proto3";\n\nservice Greeter {\n  rpc SayHello (HelloRequest) returns (HelloReply);\n}'}
-                className="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/50 resize-none"
+                className="w-full p-3.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/60 resize-none"
               />
+            </div>
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={handleParseContent}
+                disabled={!rawProto.trim()}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 disabled:opacity-50 text-white text-xs font-semibold shadow-md shadow-sky-500/20 transition-all btn-hover"
+              >
+                Compile & Load Schema
+              </button>
             </div>
           </div>
         ) : (
-          <div className="space-y-3 py-2">
+          <div className="space-y-4">
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">Absolute or Relative File Path</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1.5">Absolute or Relative File Path</label>
               <input
                 type="text"
                 value={filePath}
                 onChange={(e) => setFilePath(e.target.value)}
-                placeholder="e.g. ./proto/service.proto or C:/projects/api/order.proto"
-                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/50"
+                placeholder="e.g. /home/user/workspace/orders.proto or ./proto/api.proto"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/60"
               />
             </div>
-            <p className="text-[11px] text-slate-500">
-              ProtoLens resolves imports and standard Google types (<code>timestamp.proto</code>, <code>empty.proto</code>) automatically.
-            </p>
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={handleParsePath}
+                disabled={!filePath.trim()}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 disabled:opacity-50 text-white text-xs font-semibold shadow-md shadow-sky-500/20 transition-all btn-hover"
+              >
+                Load from Disk
+              </button>
+            </div>
           </div>
         )}
-
-        {/* Footer */}
-        <div className="pt-4 mt-4 border-t border-white/10 flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={tab === 'paste' ? handleParseContent : handleParsePath}
-            disabled={tab === 'paste' ? !rawProto.trim() : !filePath.trim()}
-            className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white text-xs font-semibold transition-all shadow-md shadow-sky-500/20"
-          >
-            Parse & Load Schema
-          </button>
-        </div>
       </div>
     </div>
   );

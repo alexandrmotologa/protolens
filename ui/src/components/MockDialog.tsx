@@ -71,32 +71,32 @@ export const MockDialog: React.FC<MockDialogProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl rounded-2xl glass-dropdown border border-white/10 shadow-2xl p-6 text-slate-100 flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl rounded-2xl glass-modal border border-white/10 shadow-2xl p-6 text-slate-100 flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-150 bg-[#0b101f]/95">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              <Server className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              <Server className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Dynamic gRPC Mock Server & Smart Rules</h3>
-              <p className="text-[11px] text-slate-400">Host schema-compliant and conditional mock RPCs</p>
+              <h3 className="font-semibold text-base text-white tracking-tight">Dynamic gRPC Mock Server & Smart Rules</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Host schema-compliant and conditional mock RPCs with reflection</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center space-x-2 pt-3 border-b border-white/10 pb-2">
+        <div className="flex items-center space-x-2 pt-3 border-b border-white/10 pb-3">
           <button
             onClick={() => setActiveTab('settings')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition ${
               activeTab === 'settings'
-                ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/30'
-                : 'text-gray-400 hover:bg-white/5'
+                ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
@@ -104,116 +104,80 @@ export const MockDialog: React.FC<MockDialogProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('rules')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition ${
               activeTab === 'rules'
-                ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/30'
-                : 'text-gray-400 hover:bg-white/5'
+                ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Smart Rules ({rules.length})</span>
+            <span>Conditional Rules</span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/30 font-semibold">
+              {rules.length}
+            </span>
           </button>
         </div>
 
-        {/* Content Body */}
-        <div className="py-4 space-y-4 text-xs flex-1 overflow-y-auto">
+        {/* Body Content */}
+        <div className="py-4 space-y-4 flex-1 overflow-y-auto pr-1">
           {activeTab === 'settings' && (
-            <>
-              {/* Status */}
-              <div
-                className={`p-3 rounded-xl border flex items-center justify-between ${
-                  mockRunning
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                    : 'bg-white/5 border-white/10 text-slate-400'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      mockRunning ? 'bg-emerald-400 live-indicator' : 'bg-slate-500'
-                    }`}
-                  />
-                  <span className="font-medium">
-                    {mockRunning ? `Listening on localhost:${mockPort}` : 'Mock Server Stopped'}
-                  </span>
-                </div>
-                {mockRunning && (
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    Reflection Active
-                  </span>
-                )}
-              </div>
-
-              {/* Port Input */}
+            <div className="space-y-4">
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Local Port</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Listen Port (TCP)
+                </label>
                 <input
                   type="number"
                   value={port}
+                  onChange={(e) => setPort(parseInt(e.target.value, 10))}
                   disabled={mockRunning}
-                  onChange={(e) => setPort(parseInt(e.target.value, 10) || 50055)}
-                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/50 disabled:opacity-50"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-emerald-500/60 disabled:opacity-50"
                 />
+                <span className="text-[11px] text-slate-400 mt-1 block">
+                  Clients connect to <code>localhost:{port}</code> via gRPC or Connect-RPC.
+                </span>
               </div>
 
-              {/* Latency Simulation */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-slate-300 font-medium flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Global Simulated Latency</span>
-                  </label>
-                  <span className="font-mono text-amber-300">{latencyMs} ms</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="1500"
-                  step="50"
-                  value={latencyMs}
-                  onChange={(e) => setLatencyMs(parseInt(e.target.value, 10))}
-                  className="w-full accent-amber-500 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
-                  <span>0ms (Immediate)</span>
-                  <span>500ms</span>
-                  <span>1500ms (High Delay)</span>
-                </div>
-              </div>
-
-              {/* Fault / Error Code Injection */}
-              <div>
-                <label className="block text-slate-300 font-medium mb-1 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-rose-400" />
-                  <span>Global Fault / Error Code Injection</span>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Global Latency Simulation (ms)
                 </label>
-                <select
-                  value={errorCode}
-                  onChange={(e) => setErrorCode(parseInt(e.target.value, 10))}
-                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-rose-500/50"
-                >
-                  <option value="0">0 - OK (Normal Successful Response)</option>
-                  <option value="1">1 - CANCELLED</option>
-                  <option value="3">3 - INVALID_ARGUMENT</option>
-                  <option value="4">4 - DEADLINE_EXCEEDED</option>
-                  <option value="5">5 - NOT_FOUND</option>
-                  <option value="7">7 - PERMISSION_DENIED</option>
-                  <option value="14">14 - UNAVAILABLE (Service Down)</option>
-                  <option value="16">16 - UNAUTHENTICATED</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-slate-400" />
+                  <input
+                    type="number"
+                    value={latencyMs}
+                    onChange={(e) => setLatencyMs(parseInt(e.target.value, 10) || 0)}
+                    disabled={mockRunning}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-emerald-500/60 disabled:opacity-50"
+                  />
+                </div>
               </div>
-            </>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Default gRPC Error Code (0 = OK, 1 = Cancelled, 5 = NotFound, 16 = Unauthenticated)
+                </label>
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-slate-400" />
+                  <input
+                    type="number"
+                    value={errorCode}
+                    onChange={(e) => setErrorCode(parseInt(e.target.value, 10) || 0)}
+                    disabled={mockRunning}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-emerald-500/60 disabled:opacity-50"
+                  />
+                </div>
+              </div>
+            </div>
           )}
 
           {activeTab === 'rules' && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] text-gray-400">
-                  Return custom responses or status codes when incoming request fields match specific criteria
-                </p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <span className="text-xs text-slate-300 font-medium">Smart Conditional Rules</span>
                 <button
                   onClick={handleAddRule}
-                  className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium flex items-center space-x-1"
+                  className="px-3.5 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center gap-1.5 transition shadow-sm"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Rule</span>
@@ -221,73 +185,69 @@ export const MockDialog: React.FC<MockDialogProps> = ({
               </div>
 
               {rules.length === 0 ? (
-                <div className="py-12 text-center text-gray-500">
-                  <p>No smart rules defined. Click "Add Rule" or "Save as Mock Rule" from response panel.</p>
+                <div className="text-center py-10 text-xs text-slate-500 border border-dashed border-white/10 rounded-2xl">
+                  No conditional mock rules configured. When no rules match, the mock server synthesizes default schema-compliant responses.
                 </div>
               ) : (
                 rules.map((rule, idx) => (
-                  <div key={rule.id} className="p-3.5 rounded-xl bg-black/40 border border-white/10 space-y-2.5">
+                  <div key={rule.id} className="p-4 rounded-2xl border border-white/10 bg-white/[0.02] space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 flex-1 mr-2">
-                        <span className="text-[11px] text-gray-400 font-medium">Method:</span>
-                        <input
-                          type="text"
-                          placeholder="/package.Service/Method (or leave empty for all)"
-                          value={rule.method}
-                          onChange={(e) => handleUpdateRule(idx, 'method', e.target.value)}
-                          className="flex-1 bg-[#12141a] border border-gray-800 rounded px-2 py-1 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-500"
-                        />
-                      </div>
+                      <span className="text-xs font-semibold text-emerald-400 font-mono">Rule #{idx + 1}</span>
                       <button
                         onClick={() => handleDeleteRule(rule.id)}
-                        className="p-1 text-gray-500 hover:text-red-400 rounded transition"
+                        className="p-1 text-slate-500 hover:text-rose-400 transition"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <span className="text-[10px] text-gray-400 block mb-0.5">Field Name</span>
+                        <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Target Method (empty = all)</label>
                         <input
                           type="text"
-                          placeholder="e.g. customer_id"
-                          value={rule.conditionField}
-                          onChange={(e) => handleUpdateRule(idx, 'conditionField', e.target.value)}
-                          className="w-full bg-[#12141a] border border-gray-800 rounded px-2 py-1 text-xs font-mono text-white focus:outline-none"
+                          placeholder="e.g. /test.orders.v1.OrderService/CreateOrder"
+                          value={rule.method}
+                          onChange={(e) => handleUpdateRule(idx, 'method', e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-emerald-500/50"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-gray-400 block mb-0.5">Operator</span>
-                        <select
-                          value={rule.conditionOp}
-                          onChange={(e) => handleUpdateRule(idx, 'conditionOp', e.target.value)}
-                          className="w-full bg-[#12141a] border border-gray-800 rounded px-2 py-1 text-xs font-mono text-white focus:outline-none"
-                        >
-                          <option value="equals">equals</option>
-                          <option value="contains">contains</option>
-                          <option value="exists">exists</option>
-                        </select>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-gray-400 block mb-0.5">Value</span>
-                        <input
-                          type="text"
-                          placeholder="Expected value"
-                          value={rule.conditionVal}
-                          onChange={(e) => handleUpdateRule(idx, 'conditionVal', e.target.value)}
-                          className="w-full bg-[#12141a] border border-gray-800 rounded px-2 py-1 text-xs font-mono text-white focus:outline-none"
-                        />
+                        <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Condition Match</label>
+                        <div className="flex items-center space-x-1.5">
+                          <input
+                            type="text"
+                            placeholder="Field"
+                            value={rule.conditionField}
+                            onChange={(e) => handleUpdateRule(idx, 'conditionField', e.target.value)}
+                            className="w-1/3 px-2 py-1.5 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none"
+                          />
+                          <select
+                            value={rule.conditionOp}
+                            onChange={(e) => handleUpdateRule(idx, 'conditionOp', e.target.value)}
+                            className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none"
+                          >
+                            <option value="equals">=</option>
+                            <option value="contains">contains</option>
+                          </select>
+                          <input
+                            type="text"
+                            placeholder="Val"
+                            value={rule.conditionVal}
+                            onChange={(e) => handleUpdateRule(idx, 'conditionVal', e.target.value)}
+                            className="flex-1 px-2 py-1.5 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none"
+                          />
+                        </div>
                       </div>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-gray-400 block mb-0.5">Custom Response JSON</span>
+                      <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Mock Response JSON</label>
                       <textarea
                         rows={3}
                         value={rule.responseJson}
                         onChange={(e) => handleUpdateRule(idx, 'responseJson', e.target.value)}
-                        className="w-full bg-[#12141a] border border-gray-800 rounded p-2 text-xs font-mono text-emerald-300 focus:outline-none focus:border-emerald-500"
+                        className="w-full p-2.5 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-emerald-500/50 resize-none"
                       />
                     </div>
                   </div>
@@ -298,31 +258,40 @@ export const MockDialog: React.FC<MockDialogProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-4 border-t border-white/10 flex items-center justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-colors"
-          >
-            Close
-          </button>
+        <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`w-2.5 h-2.5 rounded-full ${mockRunning ? 'bg-emerald-400 live-indicator' : 'bg-slate-600'}`} />
+            <span className="text-xs font-mono text-slate-300">
+              {mockRunning ? `Running on :${port}` : 'Server Offline'}
+            </span>
+          </div>
 
-          {mockRunning ? (
+          <div className="flex items-center space-x-3">
             <button
-              onClick={onStopMock}
-              className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-lg shadow-rose-500/20"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
             >
-              <Square className="w-3.5 h-3.5 fill-current" />
-              <span>Stop Mock Server</span>
+              Close
             </button>
-          ) : (
-            <button
-              onClick={handleStart}
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-500/20"
-            >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start Mock Server</span>
-            </button>
-          )}
+
+            {mockRunning ? (
+              <button
+                onClick={onStopMock}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 text-white text-xs font-semibold shadow-md shadow-rose-500/20 flex items-center gap-2 transition-all btn-hover"
+              >
+                <Square className="w-3.5 h-3.5 fill-current" />
+                <span>Stop Mock Server</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleStart}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-semibold shadow-md shadow-emerald-500/20 flex items-center gap-2 transition-all btn-hover"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Start Mock Server</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
