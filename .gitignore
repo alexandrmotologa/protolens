@@ -1,0 +1,26 @@
+# Binaries and build outputs
+protolens
+protolens.exe
+dist/
+ui/dist/
+bin/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Local data & environment
+.protolens/
+*.env
+*.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
