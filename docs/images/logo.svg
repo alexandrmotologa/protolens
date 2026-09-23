@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <clipPath id="squircle-clip">
+      <rect x="24" y="24" width="976" height="976" rx="220" />
+    </clipPath>
+
+    <!-- Gradients -->
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <linearGradient id="amber-lens" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <linearGradient id="beak-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <filter id="subtle-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#000000" flood-opacity="0.18" />
+    </filter>
+  </defs>
+
+  <!-- Luxury White Squircle Container -->
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="#ffffff" stroke="#e2e8f0" stroke-width="6" />
+
+  <g clip-path="url(#squircle-clip)">
+    <g transform="translate(512, 512)" filter="url(#subtle-shadow)">
+
+      <!-- Hexagonal Architectural Gateway -->
+      <polygon points="
+        0,-390
+        338,-195
+        338,195
+        0,390
+        -338,195
+        -338,-195
+      " fill="none" stroke="#0f172a" stroke-width="38" stroke-linejoin="round" />
+
+      <polygon points="
+        0,-355
+        307,-177
+        307,177
+        0,355
+        -307,177
+        -307,-177
+      " fill="none" stroke="#00f5ff" stroke-width="4" opacity="0.45" stroke-dasharray="16, 12" />
+
+      <!-- 100% Watertight Solid Base Silhouette (Zero-Leak Rule) -->
+      <path d="
+        M 0,-260
+        L 90,-290 L 195,-355 L 185,-230 L 245,-120 L 280,-20 L 285,100 L 250,225 L 185,320 L 95,365 L 0,380
+        L -95,365 L -185,320 L -250,225 L -285,100 L -280,-20 L -245,-120 L -185,-230 L -195,-355 L -90,-290
+        Z
+      " fill="#070a12" />
+
+      <!-- Outer Folded Wings (Low-Poly Obsidian Armor) -->
+      <!-- Left Wing Facets -->
+      <polygon points="-285,100 -250,225 -165,260 -185,130" fill="#0f172a" />
+      <polygon points="-280,-20 -285,100 -185,130 -195,0" fill="#1e293b" />
+      <polygon points="-245,-120 -280,-20 -195,0 -165,-100" fill="#334155" />
+      <polygon points="-250,225 -185,320 -115,295 -165,260" fill="#0b0f19" />
+      <polygon points="-185,320 -95,365 -40,345 -115,295" fill="#1e293b" />
+
+      <!-- Right Wing Facets (Symmetric) -->
+      <polygon points="285,100 250,225 165,260 185,130" fill="#1e293b" />
+      <polygon points="280,-20 285,100 185,130 195,0" fill="#0f172a" />
+      <polygon points="245,-120 280,-20 195,0 165,-100" fill="#1e293b" />
+      <polygon points="250,225 185,320 115,295 165,260" fill="#334155" />
+      <polygon points="185,320 95,365 40,345 115,295" fill="#0f172a" />
+
+      <!-- Sharp Aerial Ear Tufts (Aggressive Raptor Antennas) -->
+      <!-- Left Ear Tuft -->
+      <polygon points="0,-260 -90,-290 -195,-355 -150,-240" fill="#334155" />
+      <polygon points="-90,-290 -195,-355 -185,-230 -150,-240" fill="#1e293b" />
+      <polygon points="-195,-355 -185,-230 -245,-120 -170,-150" fill="#0f172a" />
+      <polygon points="-150,-240 -185,-230 -170,-150 -105,-175" fill="#475569" />
+
+      <!-- Right Ear Tuft -->
+      <polygon points="0,-260 90,-290 195,-355 150,-240" fill="#475569" />
+      <polygon points="90,-290 195,-355 185,-230 150,-240" fill="#334155" />
+      <polygon points="195,-355 185,-230 245,-120 170,-150" fill="#1e293b" />
+      <polygon points="150,-240 185,-230 170,-150 105,-175" fill="#334155" />
+
+      <!-- Crown & Brow Shield Facets -->
+      <polygon points="0,-260 -90,-290 -105,-175 0,-150" fill="#334155" />
+      <polygon points="0,-260 90,-290 105,-175 0,-150" fill="#475569" />
+      <polygon points="0,-150 -105,-175 -65,-75 0,-75" fill="#1e293b" />
+      <polygon points="0,-150 105,-175 65,-75 0,-75" fill="#334155" />
+
+      <!-- Heavy Obsidian Brow Ridge (Predatory Cant Overhang) -->
+      <polygon points="0,-75 -65,-75 -150,-45 -45,-35" fill="#0f172a" />
+      <polygon points="0,-75 65,-75 150,-45 45,-35" fill="#1e293b" />
+      <!-- Cyan Brow Laser Accents -->
+      <polygon points="-145,-47 -40,-35 -40,-40 -140,-50" fill="#00f5ff" />
+      <polygon points="145,-47 40,-35 40,-40 140,-50" fill="#00f5ff" />
+
+      <!-- Facial Disc Surrounds -->
+      <polygon points="-170,-150 -245,-120 -195,0 -150,-45" fill="#0b0f19" />
+      <polygon points="170,-150 245,-120 195,0 150,-45" fill="#1e293b" />
+      <polygon points="-195,0 -185,130 -115,80 -140,25" fill="#1e293b" />
+      <polygon points="195,0 185,130 115,80 140,25" fill="#0f172a" />
+
+      <!-- PREDATORY GEOMETRIC ALMOND OPTICAL APERTURE EYES -->
+      <!-- Left Eye Assembly (Slanted upward toward ear) -->
+      <!-- Dark Eye Socket Foundation -->
+      <polygon points="-40,-35 -145,-45 -135,15 -50,15" fill="#070a12" stroke="#334155" stroke-width="2" />
+      <!-- Outer Cyan Bevel Ring -->
+      <polygon points="-48,-30 -135,-38 -125,8 -56,8" fill="#0b0f19" stroke="url(#cyan-glow)" stroke-width="3" />
+      <!-- Optical Aperture Core (Predator Almond Shape) -->
+      <polygon points="-60,-24 -122,-30 -114,2 -68,2" fill="url(#cyan-glow)" opacity="0.9" />
+      <polygon points="-70,-20 -112,-24 -106,-2 -76,-2" fill="url(#amber-lens)" />
+      <!-- Sharp Slit Laser Pupil -->
+      <polygon points="-90,-26 -95,-12 -91,4 -87,-12" fill="#070a12" />
+      <polygon points="-91,-22 -93,-13 -90,-2 -89,-13" fill="#ffffff" opacity="0.9" />
+
+      <!-- Right Eye Assembly (Symmetric Slanted upward toward ear) -->
+      <!-- Dark Eye Socket Foundation -->
+      <polygon points="40,-35 145,-45 135,15 50,15" fill="#070a12" stroke="#475569" stroke-width="2" />
+      <!-- Outer Cyan Bevel Ring -->
+      <polygon points="48,-30 135,-38 125,8 56,8" fill="#0b0f19" stroke="url(#cyan-glow)" stroke-width="3" />
+      <!-- Optical Aperture Core (Predator Almond Shape) -->
+      <polygon points="60,-24 122,-30 114,2 68,2" fill="url(#cyan-glow)" opacity="0.9" />
+      <polygon points="70,-20 112,-24 106,-2 76,-2" fill="url(#amber-lens)" />
+      <!-- Sharp Slit Laser Pupil -->
+      <polygon points="90,-26 95,-12 91,4 87,-12" fill="#070a12" />
+      <polygon points="91,-22 93,-13 90,-2 89,-13" fill="#ffffff" opacity="0.9" />
+
+      <!-- Nasal Bridge & Whisker Flanges -->
+      <polygon points="0,-75 -40,-35 -25,35 0,35" fill="#1e293b" />
+      <polygon points="0,-75 40,-35 25,35 0,35" fill="#334155" />
+      <polygon points="-50,15 -135,15 -115,80 -25,35" fill="#0f172a" />
+      <polygon points="50,15 135,15 115,80 25,35" fill="#1e293b" />
+
+      <!-- Golden Angular Prism Beak -->
+      <polygon points="0,35 -24,85 0,155" fill="#d97706" />
+      <polygon points="0,35 24,85 0,155" fill="url(#beak-grad)" />
+      <polygon points="0,35 -8,85 0,155" fill="#fbbf24" opacity="0.5" />
+
+      <!-- Chest / Breast Armor Chevron Plates -->
+      <!-- Tier 1 Armor -->
+      <polygon points="0,155 -115,80 -75,175 0,215" fill="#1e293b" />
+      <polygon points="0,155 115,80 75,175 0,215" fill="#334155" />
+      <!-- Cyan Chevron Seam Glow -->
+      <polyline points="-105,90 0,160 105,90" fill="none" stroke="#00f5ff" stroke-width="3.5" opacity="0.85" />
+
+      <!-- Tier 2 Armor -->
+      <polygon points="0,215 -75,175 -120,245 0,295" fill="#0f172a" />
+      <polygon points="0,215 75,175 120,245 0,295" fill="#1e293b" />
+
+      <!-- Tier 3 Armor / Tail Keel -->
+      <polygon points="0,295 -120,245 -65,340 0,370" fill="#1e293b" />
+      <polygon points="0,295 120,245 65,340 0,370" fill="#334155" />
+
+      <!-- Center Telemetry Nexus (Hexagonal Aperture Core) -->
+      <polygon points="
+        0,215
+        32,233
+        32,271
+        0,289
+        -32,271
+        -32,233
+      " fill="#070a12" stroke="#00f5ff" stroke-width="3.5" stroke-linejoin="round" />
+      <circle cx="0" cy="252" r="7.5" fill="#00f5ff" />
+
+    </g>
+  </g>
+</svg>

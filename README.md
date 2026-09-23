@@ -1,4 +1,19 @@
-# ProtoLens
+<p align="center">
+  <img src="docs/images/logo.png?raw=true" alt="ProtoLens Logo" width="130" style="border-radius: 24px;" />
+</p>
+
+<h1 align="center">ProtoLens</h1>
+
+<p align="center">
+  <strong>Desktop studio, reflection explorer, and mock engine for gRPC and Connect-RPC</strong>
+</p>
+
+<p align="center">
+  <a href="#quick-start"><img src="https://img.shields.io/badge/status-active-emerald.svg" alt="Status"></a>
+  <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.23+-00ADD8.svg" alt="Go"></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19-61DAFB.svg" alt="React"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+</p>
 
 ProtoLens is a desktop studio, reflection explorer, and mock engine for gRPC, Connect-RPC, and Protobuf schemas.
 
@@ -80,7 +95,23 @@ ProtoLens includes dedicated workflows built directly into the studio workbench:
 
 ## Studio interface
 
-![ProtoLens Workbench Screenshot](docs/images/protolens-1.png)
+### Dynamic RPC Execution & Mock Workbench
+![ProtoLens Workbench Screenshot](docs/images/protolens_workbench.png)
+
+### gRPC Micro-Benchmarking & Load Tester
+![ProtoLens Benchmark Screenshot](docs/images/protolens_benchmark.png)
+
+### Protobuf Schema Diff & Breaking Changes Detector
+![ProtoLens Schema Diff Screenshot](docs/images/protolens_diff.png)
+
+### JWT Claims Inspector & Expiration Countdown
+![ProtoLens JWT Inspector Screenshot](docs/images/protolens_jwt.png)
+
+### Call History & 1-Click Replay Drawer
+![ProtoLens Call History Screenshot](docs/images/protolens_history.png)
+
+### Collections & Request Suites Library
+![ProtoLens Collections Screenshot](docs/images/protolens_collections.png)
 
 ## Quick start
 

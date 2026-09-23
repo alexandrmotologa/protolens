@@ -2,7 +2,7 @@ import os
 import sys
 from PIL import Image, ImageSequence
 
-input_path = r"C:\Users\alexander\.gemini\antigravity-ide\brain\7006d6fa-8ab7-4f0e-9b15-0e137533e49e\protolens_demo_1790181308303.webp"
+input_path = r"C:\Users\alexander\.gemini\antigravity-ide\brain\7006d6fa-8ab7-4f0e-9b15-0e137533e49e\protolens_superpowers_test_1790183267561.webp"
 output_path = r"B:\workgit\protolens\docs\images\protolens_demo.gif"
 
 if not os.path.exists(input_path):
