@@ -33,6 +33,8 @@ It runs as a single Go binary with an embedded React and Monaco Editor frontend.
 [ Target gRPC / Connect / AI Inference Service ] (Triton, vLLM, Backend APIs)
 ```
 
+![ProtoLens Studio Demo](docs/images/protolens_demo.gif)
+
 ## Why ProtoLens
 
 In 2023, BloomRPC was archived, leaving backend engineers with few dedicated tools for gRPC testing. Existing alternatives often require heavy cloud accounts, lack streaming support, or operate solely through the command line.
@@ -59,6 +61,10 @@ ProtoLens provides a lightweight, local-first client:
 | Embedded Dynamic Mock Server | Yes | No | Cloud-only | No |
 | AI Inference Presets (Triton/vLLM) | Yes | No | No | No |
 | Single Binary Distribution | Yes | No | No | Yes |
+
+## Studio interface
+
+![ProtoLens Workbench Screenshot](docs/images/protolens-1.png)
 
 ## Quick start
 
