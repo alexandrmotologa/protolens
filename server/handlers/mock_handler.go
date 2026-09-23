@@ -9,10 +9,11 @@ import (
 )
 
 type MockStatusResponse struct {
-	Running   bool `json:"running"`
-	Port      int  `json:"port"`
-	LatencyMs int  `json:"latencyMs"`
-	ErrorCode int  `json:"errorCode"`
+	Running   bool            `json:"running"`
+	Port      int             `json:"port"`
+	LatencyMs int             `json:"latencyMs"`
+	ErrorCode int             `json:"errorCode"`
+	Rules     []mock.MockRule `json:"rules,omitempty"`
 }
 
 func HandleMockStart(state *state.AppState) http.HandlerFunc {
@@ -46,6 +47,7 @@ func HandleMockStart(state *state.AppState) http.HandlerFunc {
 			Port:      mockSrv.Port(),
 			LatencyMs: cfg.LatencyMs,
 			ErrorCode: cfg.ErrorCode,
+			Rules:     cfg.Rules,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -77,8 +79,33 @@ func HandleMockStatus(state *state.AppState) http.HandlerFunc {
 		if state.MockSrv != nil && state.MockSrv.IsRunning() {
 			resp.Running = true
 			resp.Port = state.MockSrv.Port()
+			resp.Rules = state.MockSrv.GetRules()
 		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(resp)
+	}
+}
+
+func HandleMockAddRule(state *state.AppState) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if state.MockSrv == nil || !state.MockSrv.IsRunning() {
+			http.Error(w, "mock server is not running", http.StatusBadRequest)
+			return
+		}
+
+		var rule mock.MockRule
+		if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
+			http.Error(w, "invalid rule payload: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		state.MockSrv.AddRule(rule)
+
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": true,
+			"rule":    rule,
+			"total":   len(state.MockSrv.GetRules()),
+		})
 	}
 }

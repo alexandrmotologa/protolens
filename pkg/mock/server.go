@@ -1,8 +1,10 @@
 package mock
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,22 +19,35 @@ import (
 	"google.golang.org/protobuf/types/dynamicpb"
 )
 
+// MockRule defines a conditional response rule based on incoming request fields.
+type MockRule struct {
+	ID             string `json:"id"`
+	Method         string `json:"method"`         // e.g. "/package.Service/Method"
+	ConditionField string `json:"conditionField"` // field name in JSON, e.g. "customerId"
+	ConditionOp    string `json:"conditionOp"`    // "equals", "contains", "exists"
+	ConditionVal   string `json:"conditionVal"`   // value to compare
+	ResponseJSON   string `json:"responseJson"`   // custom response payload
+	StatusCode     int    `json:"statusCode"`     // 0=OK, 14=UNAVAILABLE, etc.
+	LatencyMs      int    `json:"latencyMs"`      // custom latency override
+}
+
 // MockServerConfig configures the dynamic gRPC mock engine.
 type MockServerConfig struct {
 	Port              int               `json:"port"`
 	LatencyMs         int               `json:"latencyMs"`
 	ErrorCode         int               `json:"errorCode"` // 0=OK, 14=UNAVAILABLE, etc.
 	ResponseOverrides map[string]string `json:"responseOverrides"`
+	Rules             []MockRule        `json:"rules,omitempty"`
 }
 
 // Server is a dynamic gRPC mock server that satisfies requests for loaded schemas.
 type Server struct {
-	mu        sync.RWMutex
-	cfg       MockServerConfig
-	files     *protoregistry.Files
-	listener  net.Listener
-	grpcSrv   *grpc.Server
-	running   bool
+	mu         sync.RWMutex
+	cfg        MockServerConfig
+	files      *protoregistry.Files
+	listener   net.Listener
+	grpcSrv    *grpc.Server
+	running    bool
 	actualPort int
 }
 
@@ -114,7 +129,7 @@ func (s *Server) IsRunning() bool {
 	return s.running
 }
 
-// UpdateConfig dynamically modifies latency, error codes, and response overrides.
+// UpdateConfig dynamically modifies latency, error codes, and rules.
 func (s *Server) UpdateConfig(cfg MockServerConfig) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -124,6 +139,25 @@ func (s *Server) UpdateConfig(cfg MockServerConfig) {
 	if cfg.ResponseOverrides != nil {
 		s.cfg.ResponseOverrides = cfg.ResponseOverrides
 	}
+	if cfg.Rules != nil {
+		s.cfg.Rules = cfg.Rules
+	}
+}
+
+// GetRules returns the active conditional mock rules.
+func (s *Server) GetRules() []MockRule {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	res := make([]MockRule, len(s.cfg.Rules))
+	copy(res, s.cfg.Rules)
+	return res
+}
+
+// AddRule appends a new conditional mock rule to the running server.
+func (s *Server) AddRule(rule MockRule) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.cfg.Rules = append(s.cfg.Rules, rule)
 }
 
 func (s *Server) handleUnknownRPC(_ interface{}, stream grpc.ServerStream) error {
@@ -136,6 +170,7 @@ func (s *Server) handleUnknownRPC(_ interface{}, stream grpc.ServerStream) error
 	latency := s.cfg.LatencyMs
 	errCode := s.cfg.ErrorCode
 	overrideJSON := s.cfg.ResponseOverrides[methodName]
+	rules := s.cfg.Rules
 	files := s.files
 	s.mu.RUnlock()
 
@@ -160,7 +195,31 @@ func (s *Server) handleUnknownRPC(_ interface{}, stream grpc.ServerStream) error
 	inMsg := dynamicpb.NewMessage(md.Input())
 	_ = stream.RecvMsg(inMsg)
 
-	// Determine response message
+	// Check conditional mock rules
+	inJSON, _ := schema.DynamicMessageToJSON(inMsg)
+	var inMap map[string]interface{}
+	_ = json.Unmarshal([]byte(inJSON), &inMap)
+
+	for _, rule := range rules {
+		if rule.Method == methodName || rule.Method == string(md.FullName()) || strings.HasSuffix(methodName, rule.Method) {
+			if matchRuleCondition(inMap, rule) {
+				if rule.LatencyMs > 0 {
+					time.Sleep(time.Duration(rule.LatencyMs) * time.Millisecond)
+				}
+				if rule.StatusCode > 0 {
+					return status.Errorf(codes.Code(rule.StatusCode), "Mock rule triggered error (%s)", codes.Code(rule.StatusCode).String())
+				}
+				if rule.ResponseJSON != "" {
+					ruleMsg, err := schema.JSONToDynamicMessage(rule.ResponseJSON, md.Output())
+					if err == nil {
+						return stream.SendMsg(ruleMsg)
+					}
+				}
+			}
+		}
+	}
+
+	// Determine standard response message
 	var respMsg proto.Message
 	if overrideJSON != "" {
 		customMsg, err := schema.JSONToDynamicMessage(overrideJSON, md.Output())
@@ -186,4 +245,39 @@ func (s *Server) handleUnknownRPC(_ interface{}, stream grpc.ServerStream) error
 
 	// Unary or client streaming
 	return stream.SendMsg(respMsg)
+}
+
+func matchRuleCondition(inMap map[string]interface{}, rule MockRule) bool {
+	if rule.ConditionField == "" {
+		return true
+	}
+
+	val, exists := inMap[rule.ConditionField]
+	if !exists {
+		// Try case-insensitive or camelCase / snake_case matching
+		for k, v := range inMap {
+			if strings.EqualFold(k, rule.ConditionField) || strings.ReplaceAll(k, "_", "") == strings.ReplaceAll(rule.ConditionField, "_", "") {
+				val = v
+				exists = true
+				break
+			}
+		}
+	}
+
+	if !exists {
+		return false
+	}
+
+	strVal := fmt.Sprintf("%v", val)
+
+	switch strings.ToLower(rule.ConditionOp) {
+	case "contains":
+		return strings.Contains(strVal, rule.ConditionVal)
+	case "exists":
+		return true
+	case "equals", "==":
+		return strVal == rule.ConditionVal
+	default:
+		return strVal == rule.ConditionVal
+	}
 }

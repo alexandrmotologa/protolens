@@ -108,9 +108,122 @@ export interface TabItem {
   isStreamActive: boolean;
 }
 
+export interface MockRule {
+  id: string;
+  method: string;
+  conditionField: string;
+  conditionOp: 'equals' | 'contains' | 'exists';
+  conditionVal: string;
+  responseJson: string;
+  statusCode: number;
+  latencyMs: number;
+}
+
 export interface MockConfig {
   port: number;
   latencyMs: number;
   errorCode: number;
   responseOverrides: Record<string, string>;
+  rules?: MockRule[];
 }
+
+export interface EnvironmentVariable {
+  key: string;
+  value: string;
+  enabled: boolean;
+}
+
+export interface Environment {
+  id: string;
+  name: string;
+  variables: EnvironmentVariable[];
+}
+
+export interface HistoryItem {
+  id: string;
+  timestamp: string;
+  target: string;
+  method: string;
+  protocol: 'grpc' | 'connect';
+  payloadJson: string;
+  headers?: Record<string, string>;
+  statusCode: number;
+  statusMessage: string;
+  durationMs: number;
+  responseJson?: string;
+  error?: string;
+}
+
+export interface BenchmarkRequest {
+  target: string;
+  method: string;
+  payloadJson: string;
+  headers?: Record<string, string>;
+  tls: TLSConfig;
+  concurrency: number;
+  durationSeconds: number;
+  totalRequests?: number;
+}
+
+export interface BenchmarkReport {
+  totalRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  elapsedSeconds: number;
+  rps: number;
+  latencyMinMs: number;
+  latencyAvgMs: number;
+  latencyMaxMs: number;
+  latencyP50Ms: number;
+  latencyP90Ms: number;
+  latencyP95Ms: number;
+  latencyP99Ms: number;
+  statusCodes: Record<string, number>;
+}
+
+export type DiffType = 'BREAKING' | 'ADDITION' | 'MODIFIED';
+
+export interface DiffItem {
+  type: DiffType;
+  category: 'Service' | 'Method' | 'Field';
+  location: string;
+  description: string;
+}
+
+export interface SchemaDiffReport {
+  hasBreakingChanges: boolean;
+  totalBreaking: number;
+  totalAdditions: number;
+  totalModified: number;
+  diffs: DiffItem[];
+}
+
+export interface SavedRequest {
+  id: string;
+  name: string;
+  methodName: string;
+  methodFullName: string;
+  target: string;
+  protocol: 'grpc' | 'connect';
+  payloadJson: string;
+  headers: HeaderEntry[];
+  tls: TLSConfig;
+  savedAt: string;
+}
+
+export interface Collection {
+  id: string;
+  name: string;
+  description?: string;
+  requests: SavedRequest[];
+}
+
+export interface DecodedJwt {
+  header: Record<string, any>;
+  payload: Record<string, any>;
+  raw: string;
+  isValid: boolean;
+  isExpired: boolean;
+  expiresInSeconds?: number;
+}
+

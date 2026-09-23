@@ -8,9 +8,13 @@ import {
   Sparkles, 
   Lock, 
   Unlock, 
-  Send,
-  Sliders,
-  ChevronDown
+  ChevronDown,
+  Globe,
+  Clock,
+  Zap,
+  GitCompare,
+  FolderHeart,
+  Key
 } from 'lucide-react';
 import { TLSConfig } from '../types';
 
@@ -29,6 +33,13 @@ interface NavbarProps {
   onOpenAIPresets: () => void;
   mockRunning: boolean;
   mockPort: number;
+  activeEnvName?: string;
+  onOpenEnvModal: () => void;
+  onOpenHistory: () => void;
+  onOpenBenchmark: () => void;
+  onOpenDiff: () => void;
+  onOpenCollections: () => void;
+  onOpenJwtInspector: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -46,6 +57,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAIPresets,
   mockRunning,
   mockPort,
+  activeEnvName,
+  onOpenEnvModal,
+  onOpenHistory,
+  onOpenBenchmark,
+  onOpenDiff,
+  onOpenCollections,
+  onOpenJwtInspector,
 }) => {
   const [showProtocolDropdown, setShowProtocolDropdown] = useState(false);
 
@@ -67,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Target Host & Protocol Bar */}
-      <div className="flex items-center gap-2 max-w-2xl w-full mx-4">
+      <div className="flex items-center gap-2 max-w-xl w-full mx-3">
         {/* Protocol Selector */}
         <div className="relative">
           <button
@@ -75,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 transition-colors"
           >
             <span className={`w-2 h-2 rounded-full ${protocol === 'grpc' ? 'bg-cyan-400' : 'bg-purple-400'}`} />
-            <span>{protocol === 'grpc' ? 'gRPC (HTTP/2)' : 'Connect-RPC'}</span>
+            <span>{protocol === 'grpc' ? 'gRPC' : 'Connect'}</span>
             <ChevronDown className="w-3 h-3 text-slate-400" />
           </button>
 
@@ -106,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             value={target}
             onChange={(e) => setTarget(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') onReflect(); }}
-            placeholder="Target host (e.g. localhost:50051 or api.staging.io:443)"
+            placeholder="Target host (e.g. localhost:50051 or {{HOST}})"
             className="w-full bg-transparent text-xs font-mono text-slate-100 placeholder-slate-500 outline-none"
           />
 
@@ -134,7 +152,67 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Action Toolbar */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
+        {/* Environment Switcher */}
+        <button
+          onClick={onOpenEnvModal}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-medium text-emerald-300 transition-colors"
+          title="Switch or edit Environments & Dynamic Variables"
+        >
+          <Globe className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="max-w-[100px] truncate">{activeEnvName || 'Env'}</span>
+        </button>
+
+        {/* Collections */}
+        <button
+          onClick={onOpenCollections}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-teal-300 transition-colors"
+          title="Collections & Request Suites"
+        >
+          <FolderHeart className="w-3.5 h-3.5 text-teal-400" />
+          <span className="hidden xl:inline">Collections</span>
+        </button>
+
+        {/* History */}
+        <button
+          onClick={onOpenHistory}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-indigo-300 transition-colors"
+          title="Call History & 1-Click Replay"
+        >
+          <Clock className="w-3.5 h-3.5 text-indigo-400" />
+          <span className="hidden xl:inline">History</span>
+        </button>
+
+        {/* Benchmark */}
+        <button
+          onClick={onOpenBenchmark}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-amber-300 transition-colors"
+          title="Micro-Benchmark & Load Tester"
+        >
+          <Zap className="w-3.5 h-3.5 text-amber-400" />
+          <span className="hidden xl:inline">Benchmark</span>
+        </button>
+
+        {/* Schema Diff */}
+        <button
+          onClick={onOpenDiff}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-pink-300 transition-colors"
+          title="Protobuf Schema Diff & Breaking Changes"
+        >
+          <GitCompare className="w-3.5 h-3.5 text-pink-400" />
+          <span className="hidden xl:inline">Diff</span>
+        </button>
+
+        {/* JWT Inspector */}
+        <button
+          onClick={onOpenJwtInspector}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-violet-300 transition-colors"
+          title="JWT Inspector & Claims Decoder"
+        >
+          <Key className="w-3.5 h-3.5 text-violet-400" />
+          <span className="hidden xl:inline">JWT</span>
+        </button>
+
         {/* Load Proto */}
         <button
           onClick={onOpenProtoModal}
@@ -152,7 +230,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           title="NVIDIA Triton / vLLM AI Inference Presets"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span className="hidden md:inline">AI Presets</span>
+          <span className="hidden 2xl:inline">AI Presets</span>
         </button>
 
         {/* Mock Server */}

@@ -49,6 +49,18 @@ ProtoLens provides a lightweight, local-first client:
 * CLI and code export: Export configured requests to `grpcurl`, `curl`, Go, or TypeScript snippets with one click.
 * Small footprint: Single static binary in Go (<30MB RAM usage), no Electron runtime, zero external runtime dependencies.
 
+## Engineering superpowers
+
+ProtoLens includes dedicated workflows built directly into the studio workbench:
+
+* **Environments and Dynamic Variables:** Parameterize endpoints, headers, and message payloads with `{{HOST}}`, `{{TOKEN}}`, and built-in dynamic generators (`{{$guid}}`, `{{$timestamp}}`, `{{$isoTimestamp}}`, `{{$randomInt}}`, `{{$randomEmail}}`).
+* **Call History and 1-Click Replay:** Review previous invocations with status filters, latency metrics, and instant 1-click replay into the active tab.
+* **Smart Conditional Mock Rules:** Define field-level matching conditions (`equals`, `contains`, `exists`) to return customized payloads, custom latency delays, and error codes. Snapshot live responses directly into mock rules with one click.
+* **Micro-Benchmarking and Load Tester:** Run concurrent gRPC load tests against any endpoint. Get instant reports on throughput (RPS), success ratios, and latency percentiles (`Min`, `Avg`, `Max`, `p50`, `p90`, `p95`, `p99`).
+* **Protobuf Schema Diff and Breaking Changes Detector:** Compare two schemas before deploying to production. Identify tag reassignments, field removals, and type alterations before they cause breaking changes.
+* **Auth Helper and JWT Inspector:** Inspect `Bearer` tokens in headers, review decoded header and payload claims, and track remaining token lifetime with a live expiration countdown.
+* **Collections and Request Suites:** Group requests into named suites and export or import them as JSON (`protolens-collections.json`) for team sharing.
+
 ## Feature comparison
 
 | Feature | ProtoLens | BloomRPC (Archived) | Postman | grpcurl |
@@ -59,6 +71,10 @@ ProtoLens provides a lightweight, local-first client:
 | Connect-RPC Support | Yes | No | Partial | No |
 | Full-Duplex Streaming Timeline | Yes | Basic | Basic | CLI only |
 | Embedded Dynamic Mock Server | Yes | No | Cloud-only | No |
+| Smart Conditional Mock Rules | Yes | No | No | No |
+| Integrated Micro-Benchmark (RPS/p99) | Yes | No | No | No |
+| Schema Diff & Breaking Changes | Yes | No | No | No |
+| Built-in JWT Token Inspector | Yes | No | No | No |
 | AI Inference Presets (Triton/vLLM) | Yes | No | No | No |
 | Single Binary Distribution | Yes | No | No | Yes |
 

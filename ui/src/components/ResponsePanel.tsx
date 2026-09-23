@@ -14,20 +14,31 @@ import { InvocationResponse } from '../types';
 interface ResponsePanelProps {
   response: InvocationResponse | null;
   loading: boolean;
+  onSaveAsMockRule?: (responseJson: string) => void;
 }
 
 export const ResponsePanel: React.FC<ResponsePanelProps> = ({
   response,
   loading,
+  onSaveAsMockRule,
 }) => {
   const [activeTab, setActiveTab] = useState<'body' | 'headers' | 'trailers'>('body');
   const [copied, setCopied] = useState(false);
+  const [savedMock, setSavedMock] = useState(false);
 
   const handleCopy = () => {
     if (response?.responseJson) {
       navigator.clipboard.writeText(response.responseJson);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleSaveMock = () => {
+    if (response?.responseJson && onSaveAsMockRule) {
+      onSaveAsMockRule(response.responseJson);
+      setSavedMock(true);
+      setTimeout(() => setSavedMock(false), 2000);
     }
   };
 
@@ -94,25 +105,47 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
           )}
         </div>
 
-        {/* Copy Button */}
-        {response?.responseJson && (
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs transition-colors"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy JSON</span>
-              </>
-            )}
-          </button>
-        )}
+        {/* Action Buttons */}
+        <div className="flex items-center space-x-2">
+          {response?.responseJson && onSaveAsMockRule && (
+            <button
+              onClick={handleSaveMock}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs transition-colors"
+              title="Snapshot this response into mock server rules"
+            >
+              {savedMock ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Rule Saved</span>
+                </>
+              ) : (
+                <>
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Save as Mock Rule</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {response?.responseJson && (
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs transition-colors"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy JSON</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}

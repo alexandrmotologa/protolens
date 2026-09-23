@@ -42,15 +42,22 @@ func NewRouter(state *state.AppState) chi.Router {
 		api.Post("/schema/reflect", handlers.HandleReflect(state))
 		api.Post("/schema/parse", handlers.HandleParse(state))
 		api.Get("/schema", handlers.HandleGetSchema(state))
+		api.Post("/schema/diff", handlers.HandleSchemaDiff(state))
 
-		// Invocations
+		// Invocations & History
 		api.Post("/invoke", handlers.HandleInvoke(state))
 		api.Get("/stream", handlers.HandleStream(state))
+		api.Get("/history", handlers.HandleGetHistory())
+		api.Delete("/history", handlers.HandleClearHistory())
 
 		// Mock server
 		api.Post("/mock/start", handlers.HandleMockStart(state))
 		api.Post("/mock/stop", handlers.HandleMockStop(state))
 		api.Get("/mock/status", handlers.HandleMockStatus(state))
+		api.Post("/mock/rules", handlers.HandleMockAddRule(state))
+
+		// Micro-benchmark & load testing
+		api.Post("/benchmark", handlers.HandleBenchmark(state))
 
 		// CLI & Code Exporter
 		api.Post("/export", handlers.HandleExport())

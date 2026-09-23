@@ -10,7 +10,8 @@ import {
   Info, 
   Radio, 
   Check, 
-  Clock 
+  Clock,
+  Key
 } from 'lucide-react';
 import { TabItem, HeaderEntry } from '../types';
 
@@ -18,12 +19,14 @@ interface RequestPanelProps {
   tab: TabItem;
   onUpdateTab: (updates: Partial<TabItem>) => void;
   onExecute: () => void;
+  onInspectJwt?: (token: string) => void;
 }
 
 export const RequestPanel: React.FC<RequestPanelProps> = ({
   tab,
   onUpdateTab,
   onExecute,
+  onInspectJwt,
 }) => {
   const [subTab, setSubTab] = useState<'body' | 'metadata' | 'tls' | 'schema'>('body');
 
@@ -243,6 +246,17 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                       onChange={(e) => handleUpdateHeader(h.id, { value: e.target.value })}
                       className="flex-1 px-2.5 py-1.5 rounded bg-black/40 border border-white/10 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500/50"
                     />
+                    {onInspectJwt && (h.value.includes('Bearer ey') || (h.value.startsWith('ey') && h.value.includes('.'))) && (
+                      <button
+                        type="button"
+                        onClick={() => onInspectJwt(h.value)}
+                        className="px-2 py-1 rounded bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 text-[10px] font-mono border border-violet-500/30 flex items-center space-x-1 shrink-0 transition"
+                        title="Inspect JWT token claims"
+                      >
+                        <Key className="w-3 h-3" />
+                        <span>Inspect JWT</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDeleteHeader(h.id)}
                       className="p-1.5 text-slate-500 hover:text-rose-400 transition-colors"
